@@ -662,12 +662,14 @@ function calcular(){
 }
 
 document.querySelectorAll('#tabPanelCompleta input').forEach(el => {
-  el.addEventListener('input', calcular);
+  el.addEventListener('input', function(){
+    try { calcular(); } catch(e){ console.error('Erro na calculadora completa:', e); }
+  });
 });
 
-calcular();
+try { calcular(); } catch(e){ console.error('Erro na calculadora completa:', e); }
 
-// ---- ABA RÁPIDA (sem custo fixo) ----
+// ---- ABA RÁPIDA (sem custo fixo, sem margem/imposto) ----
 function calcularRapida(){
   const km = parseFloat(document.getElementById('r_km').value) || 0;
   const custoKm = parseFloat(document.getElementById('r_custoKm').value) || 0;
@@ -676,60 +678,33 @@ function calcularRapida(){
   const horas = Math.max(parseFloat(document.getElementById('r_horas').value) || 0.01, 0.01);
 
   const valorHora = parseFloat(document.getElementById('r_valorHora').value) || 0;
-  const margemPct = Math.min(parseFloat(document.getElementById('r_margem').value) || 0, 90);
-  const impostosPct = Math.min(parseFloat(document.getElementById('r_impostos').value) || 0, 50);
 
   const deslocamento = km * custoKm;
   const maoDeObra = horas * valorHora;
 
-  const custoDireto = deslocamento + produtos + maoDeObra;
-
-  let precoComMargem = custoDireto;
-  let valorMargem = 0;
-  if (margemPct < 100){
-    precoComMargem = custoDireto / (1 - margemPct/100);
-    valorMargem = precoComMargem - custoDireto;
-  }
-
-  let precoFinal = precoComMargem;
-  let valorImpostos = 0;
-  if (impostosPct < 100){
-    precoFinal = precoComMargem / (1 - impostosPct/100);
-    valorImpostos = precoFinal - precoComMargem;
-  }
-
-  const lucroLiquido = precoFinal - custoDireto - valorImpostos;
+  const precoFinal = deslocamento + produtos + maoDeObra;
   const precoPorHora = precoFinal / horas;
 
   document.getElementById('r_precoFinal').textContent = fmt(precoFinal);
   document.getElementById('r_precoHoraCaption').textContent = 'R$ ' + fmt(precoPorHora) + ' por hora efetiva de trabalho';
-  document.getElementById('r_custoTotal').textContent = 'R$ ' + fmt(custoDireto);
-  document.getElementById('r_lucroLiquido').textContent = 'R$ ' + fmt(lucroLiquido);
+  document.getElementById('r_custoTotal').textContent = 'R$ ' + fmt(precoFinal);
 
   document.getElementById('r_lDeslocamento').textContent = 'R$ ' + fmt(deslocamento);
   document.getElementById('r_lProdutos').textContent = 'R$ ' + fmt(produtos);
   document.getElementById('r_lMaoDeObra').textContent = 'R$ ' + fmt(maoDeObra);
-  document.getElementById('r_lMargem').textContent = 'R$ ' + fmt(valorMargem);
-  document.getElementById('r_lImpostos').textContent = 'R$ ' + fmt(valorImpostos);
   document.getElementById('r_lTotal').textContent = 'R$ ' + fmt(precoFinal);
 
   const warnBox = document.getElementById('r_warnBox');
-  if (margemPct >= 90 || impostosPct >= 50){
-    warnBox.textContent = 'Margem ou impostos muito altos deixam o preço fora da realidade do mercado. Revise esses percentuais.';
-    warnBox.classList.add('show');
-  } else if (precoPorHora < valorHora) {
-    warnBox.textContent = 'Atenção: seu preço por hora efetivo ficou abaixo do valor-hora desejado. Isso pode acontecer com deslocamentos longos — considere cobrar taxa de deslocamento à parte.';
-    warnBox.classList.add('show');
-  } else {
-    warnBox.classList.remove('show');
-  }
+  warnBox.classList.remove('show');
 }
 
 document.querySelectorAll('#tabPanelRapida input').forEach(el => {
-  el.addEventListener('input', calcularRapida);
+  el.addEventListener('input', function(){
+    try { calcularRapida(); } catch(e){ console.error('Erro na calculadora rápida:', e); }
+  });
 });
 
-calcularRapida();
+try { calcularRapida(); } catch(e){ console.error('Erro na calculadora rápida:', e); }
 
 // ---- TROCA DE ABAS ----
 function switchTab(tab){
@@ -738,6 +713,9 @@ function switchTab(tab){
   document.getElementById('tabPanelRapida').classList.toggle('active', !isCompleta);
   document.getElementById('tabBtnCompleta').classList.toggle('active', isCompleta);
   document.getElementById('tabBtnRapida').classList.toggle('active', !isCompleta);
+  try {
+    if (isCompleta) calcular(); else calcularRapida();
+  } catch(e){ console.error(e); }
 }
 </script>
 </body>
