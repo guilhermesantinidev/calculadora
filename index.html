@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Calculadora de Precificação — Higienização de Estofados</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#1B2A2E;
+    --foam:#F5F7F6;
+    --panel:#FFFFFF;
+    --teal:#2C7A75;
+    --teal-dark:#1E5651;
+    --amber:#E0983F;
+    --line:#DCE3E1;
+    --line-soft:#EAEFED;
+    --muted:#6B7C79;
+    --danger:#C1583F;
+    --radius:14px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--foam);
+    color:var(--ink);
+    font-family:'Sora',sans-serif;
+    padding:32px 20px 60px;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:1080px;margin:0 auto;}
+
+  header{margin-bottom:28px;}
+  .eyebrow{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:12px;
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    color:var(--teal-dark);
+    display:flex;
+    align-items:center;
+    gap:10px;
+    margin-bottom:10px;
+  }
+  .eyebrow::before{
+    content:'';
+    width:22px;height:2px;
+    background:var(--amber);
+    display:inline-block;
+  }
+  h1{
+    font-size:clamp(26px,4vw,36px);
+    font-weight:800;
+    letter-spacing:-0.02em;
+    margin:0 0 8px;
+    line-height:1.1;
+  }
+  header p{
+    color:var(--muted);
+    font-size:15px;
+    max-width:560px;
+    margin:0;
+    line-height:1.5;
+  }
+
+  .grid{
+    display:grid;
+    grid-template-columns: 1.15fr 0.85fr;
+    gap:20px;
+    align-items:start;
+  }
+  @media (max-width:860px){
+    .grid{grid-template-columns:1fr;}
+  }
+
+  .card{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:22px 24px 24px;
+  }
+  .card + .card{margin-top:18px;}
+
+  .card h2{
+    font-size:14px;
+    font-weight:700;
+    text-transform:uppercase;
+    letter-spacing:.06em;
+    margin:0 0 4px;
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+  .card h2 .num{
+    font-family:'IBM Plex Mono',monospace;
+    color:#fff;
+    background:var(--teal);
+    width:22px;height:22px;
+    border-radius:6px;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    font-size:12px;
+    flex:none;
+  }
+  .card .sub{
+    font-size:12.5px;
+    color:var(--muted);
+    margin:0 0 16px;
+    line-height:1.45;
+  }
+
+  .field-row{
+    display:grid;
+    grid-template-columns:1fr;
+    gap:14px;
+  }
+  .field-row.two{grid-template-columns:1fr 1fr;}
+  @media (max-width:520px){
+    .field-row.two{grid-template-columns:1fr;}
+  }
+
+  label{
+    display:block;
+    font-size:13px;
+    font-weight:600;
+    margin-bottom:6px;
+    color:var(--ink);
+  }
+  label .hint{
+    display:block;
+    font-weight:400;
+    font-size:11.5px;
+    color:var(--muted);
+    margin-top:2px;
+  }
+
+  .input-wrap{position:relative;}
+  .input-wrap .prefix{
+    position:absolute;
+    left:12px;top:50%;
+    transform:translateY(-50%);
+    font-family:'IBM Plex Mono',monospace;
+    font-size:13px;
+    color:var(--muted);
+    pointer-events:none;
+  }
+  input[type=number]{
+    width:100%;
+    padding:10px 12px 10px 30px;
+    border:1.5px solid var(--line);
+    border-radius:9px;
+    font-family:'IBM Plex Mono',monospace;
+    font-size:14.5px;
+    color:var(--ink);
+    background:#FCFDFD;
+    transition:border-color .15s, box-shadow .15s;
+  }
+  input[type=number].no-prefix{padding-left:12px;}
+  input[type=number]:focus{
+    outline:none;
+    border-color:var(--teal);
+    box-shadow:0 0 0 3px rgba(44,122,117,0.14);
+    background:#fff;
+  }
+  input[type=number]::-webkit-outer-spin-button,
+  input[type=number]::-webkit-inner-spin-button{ -webkit-appearance:none; margin:0;}
+
+  .suffix-wrap{position:relative;}
+  .suffix-wrap .suffix{
+    position:absolute;
+    right:12px;top:50%;
+    transform:translateY(-50%);
+    font-family:'IBM Plex Mono',monospace;
+    font-size:12.5px;
+    color:var(--muted);
+    pointer-events:none;
+  }
+  .suffix-wrap input{padding-right:44px;}
+
+  .divider{
+    height:1px;
+    background:var(--line-soft);
+    margin:18px 0;
+    border:none;
+  }
+
+  /* RESULTS PANEL */
+  .readout{
+    background:var(--teal-dark);
+    color:#EAF3F1;
+    border-radius:var(--radius);
+    padding:24px 24px 20px;
+    position:sticky;
+    top:20px;
+  }
+  .readout h2{
+    font-size:12px;
+    text-transform:uppercase;
+    letter-spacing:.14em;
+    color:#9FC7C2;
+    margin:0 0 18px;
+    font-weight:700;
+  }
+  .price-display{
+    font-family:'IBM Plex Mono',monospace;
+    font-weight:700;
+    font-size:clamp(34px,5vw,44px);
+    letter-spacing:-0.01em;
+    line-height:1;
+    margin-bottom:2px;
+    display:flex;
+    align-items:baseline;
+    gap:6px;
+  }
+  .price-display .cur{font-size:20px; color:#9FC7C2; font-weight:600;}
+  .price-caption{
+    font-size:12.5px;
+    color:#B7D8D4;
+    margin-bottom:20px;
+  }
+  .readout-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:10px;
+    margin-bottom:6px;
+  }
+  .mini-stat{
+    background:rgba(255,255,255,0.06);
+    border:1px solid rgba(255,255,255,0.1);
+    border-radius:10px;
+    padding:10px 12px;
+  }
+  .mini-stat .label{
+    font-size:10.5px;
+    text-transform:uppercase;
+    letter-spacing:.06em;
+    color:#9FC7C2;
+    margin-bottom:4px;
+  }
+  .mini-stat .value{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:15px;
+    font-weight:600;
+    color:#fff;
+  }
+
+  .breakdown{margin-top:18px;}
+  .breakdown .line{
+    display:flex;
+    justify-content:space-between;
+    font-size:12.5px;
+    padding:7px 0;
+    border-bottom:1px dashed rgba(255,255,255,0.14);
+    color:#D6EAE7;
+  }
+  .breakdown .line:last-child{border-bottom:none;}
+  .breakdown .line span:last-child{
+    font-family:'IBM Plex Mono',monospace;
+    color:#fff;
+    font-weight:600;
+  }
+  .breakdown .line.total{
+    margin-top:4px;
+    padding-top:12px;
+    border-top:1px solid rgba(255,255,255,0.25);
+    border-bottom:none;
+    font-weight:700;
+    font-size:13.5px;
+    color:#fff;
+  }
+
+  .warn{
+    margin-top:16px;
+    background:rgba(224,152,63,0.14);
+    border:1px solid rgba(224,152,63,0.4);
+    border-radius:10px;
+    padding:10px 12px;
+    font-size:12px;
+    line-height:1.5;
+    color:#FDE7C7;
+    display:none;
+  }
+  .warn.show{display:block;}
+
+  footer{
+    text-align:center;
+    color:var(--muted);
+    font-size:12px;
+    margin-top:36px;
+    line-height:1.6;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="eyebrow">Ferramenta Precificação</div>
+    <h1>Calculadora de precificação<br>para higienização de estofados</h1>
+    <p>Preencha os custos fixos, variáveis e o valor-hora que você quer receber. O painel ao lado recalcula o preço sugerido por atendimento em tempo real.</p>
+  </header>
+
+  <div class="grid">
+    <!-- LEFT: INPUTS -->
+    <div>
+
+      <div class="card">
+        <h2><span class="num">1</span>Custos fixos mensais</h2>
+        <p class="sub">Custos que você tem todo mês, independente de quantos atendimentos fizer. Serão diluídos entre os serviços do mês.</p>
+        <div class="field-row two">
+          <div>
+            <label>Manutenção da extratora/equipamentos
+              <span class="hint">revisões, peças, filtros</span>
+            </label>
+            <div class="input-wrap"><span class="prefix">R$</span><input type="number" id="manutencao" value="150" min="0" step="10"></div>
+          </div>
+          <div>
+            <label>Depreciação de equipamentos
+              <span class="hint">reserva p/ trocar máquina/estofos</span>
+            </label>
+            <div class="input-wrap"><span class="prefix">R$</span><input type="number" id="depreciacao" value="100" min="0" step="10"></div>
+          </div>
+        </div>
+        <div class="field-row two" style="margin-top:14px;">
+          <div>
+            <label>Outros custos fixos
+              <span class="hint">contador, seguro, celular, marketing</span>
+            </label>
+            <div class="input-wrap"><span class="prefix">R$</span><input type="number" id="outrosFixos" value="200" min="0" step="10"></div>
+          </div>
+          <div>
+            <label>Atendimentos estimados por mês
+              <span class="hint">quantos serviços você faz/mês</span>
+            </label>
+            <input type="number" class="no-prefix" id="atendimentosMes" value="20" min="1" step="1">
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2><span class="num">2</span>Deslocamento até o cliente</h2>
+        <p class="sub">Combustível e desgaste do veículo para chegar até o local do atendimento (ida e volta).</p>
+        <div class="field-row two">
+          <div>
+            <label>Distância média por atendimento
+              <span class="hint">ida + volta</span>
+            </label>
+            <div class="suffix-wrap"><input type="number" class="no-prefix" id="km" value="20" min="0" step="1"><span class="suffix">km</span></div>
+          </div>
+          <div>
+            <label>Custo por km rodado
+              <span class="hint">combustível + manutenção do veículo</span>
+            </label>
+            <div class="input-wrap"><span class="prefix">R$</span><input type="number" id="custoKm" value="0.90" min="0" step="0.05"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2><span class="num">3</span>Produtos e mão de obra por atendimento</h2>
+        <p class="sub">O que é gasto diretamente em cada serviço, mais o tempo que ele te toma.</p>
+        <div class="field-row two">
+          <div>
+            <label>Produtos de limpeza usados
+              <span class="hint">detergente, tira-mancha, impermeabilizante</span>
+            </label>
+            <div class="input-wrap"><span class="prefix">R$</span><input type="number" id="produtos" value="35" min="0" step="5"></div>
+          </div>
+          <div>
+            <label>Tempo médio do atendimento
+              <span class="hint">deslocamento + execução</span>
+            </label>
+            <div class="suffix-wrap"><input type="number" class="no-prefix" id="horas" value="2" min="0.25" step="0.25"><span class="suffix">horas</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2><span class="num">4</span>Sua remuneração e margem</h2>
+        <p class="sub">O que você quer ganhar por hora de trabalho, mais a margem de lucro do negócio e impostos.</p>
+        <div class="field-row two">
+          <div>
+            <label>Valor-hora desejado
+              <span class="hint">seu "salário" por hora trabalhada</span>
+            </label>
+            <div class="input-wrap"><span class="prefix">R$</span><input type="number" id="valorHora" value="40" min="0" step="5"></div>
+          </div>
+          <div>
+            <label>Margem de lucro do negócio
+              <span class="hint">além do seu valor-hora</span>
+            </label>
+            <div class="suffix-wrap"><input type="number" class="no-prefix" id="margem" value="20" min="0" max="90" step="1"><span class="suffix">%</span></div>
+          </div>
+        </div>
+        <div class="field-row two" style="margin-top:14px;">
+          <div>
+            <label>Impostos / taxas
+              <span class="hint">Simples Nacional, taxa de cartão, etc</span>
+            </label>
+            <div class="suffix-wrap"><input type="number" class="no-prefix" id="impostos" value="6" min="0" max="50" step="0.5"><span class="suffix">%</span></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- RIGHT: RESULTS -->
+    <div class="readout">
+      <h2>Preço sugerido por atendimento</h2>
+      <div class="price-display"><span class="cur">R$</span><span id="precoFinal">0,00</span></div>
+      <div class="price-caption" id="precoHoraCaption">R$ 0,00 por hora efetiva de trabalho</div>
+
+      <div class="readout-grid">
+        <div class="mini-stat">
+          <div class="label">Custo total do serviço</div>
+          <div class="value" id="custoTotal">R$ 0,00</div>
+        </div>
+        <div class="mini-stat">
+          <div class="label">Lucro líquido estimado</div>
+          <div class="value" id="lucroLiquido">R$ 0,00</div>
+        </div>
+      </div>
+
+      <div class="breakdown">
+        <div class="line"><span>Custo fixo (diluído)</span><span id="lFixo">R$ 0,00</span></div>
+        <div class="line"><span>Deslocamento</span><span id="lDeslocamento">R$ 0,00</span></div>
+        <div class="line"><span>Produtos</span><span id="lProdutos">R$ 0,00</span></div>
+        <div class="line"><span>Sua mão de obra</span><span id="lMaoDeObra">R$ 0,00</span></div>
+        <div class="line"><span>Margem de lucro</span><span id="lMargem">R$ 0,00</span></div>
+        <div class="line"><span>Impostos</span><span id="lImpostos">R$ 0,00</span></div>
+        <div class="line total"><span>Preço final</span><span id="lTotal">R$ 0,00</span></div>
+      </div>
+
+      <div class="warn" id="warnBox"></div>
+    </div>
+
+  </div>
+
+  <footer>Ajuste os números conforme sua realidade — os valores pré-preenchidos são apenas referência inicial.<br>Calculadora gerada pelo Claude para uso interno.</footer>
+</div>
+
+<script>
+function fmt(v){
+  return v.toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2});
+}
+
+function calcular(){
+  const manutencao = parseFloat(document.getElementById('manutencao').value) || 0;
+  const depreciacao = parseFloat(document.getElementById('depreciacao').value) || 0;
+  const outrosFixos = parseFloat(document.getElementById('outrosFixos').value) || 0;
+  const atendimentosMes = Math.max(parseFloat(document.getElementById('atendimentosMes').value) || 1, 1);
+
+  const km = parseFloat(document.getElementById('km').value) || 0;
+  const custoKm = parseFloat(document.getElementById('custoKm').value) || 0;
+
+  const produtos = parseFloat(document.getElementById('produtos').value) || 0;
+  const horas = Math.max(parseFloat(document.getElementById('horas').value) || 0.01, 0.01);
+
+  const valorHora = parseFloat(document.getElementById('valorHora').value) || 0;
+  const margemPct = Math.min(parseFloat(document.getElementById('margem').value) || 0, 90);
+  const impostosPct = Math.min(parseFloat(document.getElementById('impostos').value) || 0, 50);
+
+  // custo fixo total mensal dividido pelo número de atendimentos
+  const fixoTotalMes = manutencao + depreciacao + outrosFixos;
+  const fixoPorAtendimento = fixoTotalMes / atendimentosMes;
+
+  const deslocamento = km * custoKm;
+  const maoDeObra = horas * valorHora;
+
+  const custoDireto = fixoPorAtendimento + deslocamento + produtos + maoDeObra;
+
+  // aplica margem
+  let precoComMargem = custoDireto;
+  let valorMargem = 0;
+  if (margemPct < 100){
+    precoComMargem = custoDireto / (1 - margemPct/100);
+    valorMargem = precoComMargem - custoDireto;
+  }
+
+  // aplica impostos
+  let precoFinal = precoComMargem;
+  let valorImpostos = 0;
+  if (impostosPct < 100){
+    precoFinal = precoComMargem / (1 - impostosPct/100);
+    valorImpostos = precoFinal - precoComMargem;
+  }
+
+  const lucroLiquido = precoFinal - custoDireto - valorImpostos;
+  const precoPorHora = precoFinal / horas;
+
+  document.getElementById('precoFinal').textContent = fmt(precoFinal);
+  document.getElementById('precoHoraCaption').textContent = 'R$ ' + fmt(precoPorHora) + ' por hora efetiva de trabalho';
+  document.getElementById('custoTotal').textContent = 'R$ ' + fmt(custoDireto);
+  document.getElementById('lucroLiquido').textContent = 'R$ ' + fmt(lucroLiquido);
+
+  document.getElementById('lFixo').textContent = 'R$ ' + fmt(fixoPorAtendimento);
+  document.getElementById('lDeslocamento').textContent = 'R$ ' + fmt(deslocamento);
+  document.getElementById('lProdutos').textContent = 'R$ ' + fmt(produtos);
+  document.getElementById('lMaoDeObra').textContent = 'R$ ' + fmt(maoDeObra);
+  document.getElementById('lMargem').textContent = 'R$ ' + fmt(valorMargem);
+  document.getElementById('lImpostos').textContent = 'R$ ' + fmt(valorImpostos);
+  document.getElementById('lTotal').textContent = 'R$ ' + fmt(precoFinal);
+
+  const warnBox = document.getElementById('warnBox');
+  if (margemPct >= 90 || impostosPct >= 50){
+    warnBox.textContent = 'Margem ou impostos muito altos deixam o preço fora da realidade do mercado. Revise esses percentuais.';
+    warnBox.classList.add('show');
+  } else if (precoPorHora < valorHora) {
+    warnBox.textContent = 'Atenção: seu preço por hora efetivo ficou abaixo do valor-hora desejado. Isso pode acontecer com deslocamentos longos — considere cobrar taxa de deslocamento à parte.';
+    warnBox.classList.add('show');
+  } else {
+    warnBox.classList.remove('show');
+  }
+}
+
+document.querySelectorAll('input').forEach(el => {
+  el.addEventListener('input', calcular);
+});
+
+calcular();
+</script>
+</body>
+</html>
