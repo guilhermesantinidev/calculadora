@@ -543,28 +543,14 @@
       </div>
 
       <div class="card">
-        <h2><span class="num">3</span>Sua remuneração e margem</h2>
-        <p class="sub">O que você quer ganhar por hora, mais margem de lucro e impostos só deste serviço.</p>
+        <h2><span class="num">3</span>Sua remuneração</h2>
+        <p class="sub">O que você quer ganhar por hora neste atendimento.</p>
         <div class="field-row two">
           <div>
             <label>Valor-hora desejado
               <span class="hint">seu "salário" por hora trabalhada</span>
             </label>
             <div class="input-wrap"><span class="prefix">R$</span><input type="number" id="r_valorHora" value="40" min="0" step="5"></div>
-          </div>
-          <div>
-            <label>Margem de lucro
-              <span class="hint">opcional, deixe 0 se não quiser</span>
-            </label>
-            <div class="suffix-wrap"><input type="number" class="no-prefix" id="r_margem" value="20" min="0" max="90" step="1"><span class="suffix">%</span></div>
-          </div>
-        </div>
-        <div class="field-row two" style="margin-top:14px;">
-          <div>
-            <label>Impostos / taxas
-              <span class="hint">Simples Nacional, taxa de cartão, etc</span>
-            </label>
-            <div class="suffix-wrap"><input type="number" class="no-prefix" id="r_impostos" value="6" min="0" max="50" step="0.5"><span class="suffix">%</span></div>
           </div>
         </div>
       </div>
@@ -577,14 +563,10 @@
       <div class="price-display"><span class="cur">R$</span><span id="r_precoFinal">0,00</span></div>
       <div class="price-caption" id="r_precoHoraCaption">R$ 0,00 por hora efetiva de trabalho</div>
 
-      <div class="readout-grid">
+      <div class="readout-grid" style="grid-template-columns:1fr;">
         <div class="mini-stat">
           <div class="label">Custo total do serviço</div>
           <div class="value" id="r_custoTotal">R$ 0,00</div>
-        </div>
-        <div class="mini-stat">
-          <div class="label">Lucro líquido estimado</div>
-          <div class="value" id="r_lucroLiquido">R$ 0,00</div>
         </div>
       </div>
 
@@ -592,8 +574,6 @@
         <div class="line"><span>Deslocamento</span><span id="r_lDeslocamento">R$ 0,00</span></div>
         <div class="line"><span>Produtos</span><span id="r_lProdutos">R$ 0,00</span></div>
         <div class="line"><span>Sua mão de obra</span><span id="r_lMaoDeObra">R$ 0,00</span></div>
-        <div class="line"><span>Margem de lucro</span><span id="r_lMargem">R$ 0,00</span></div>
-        <div class="line"><span>Impostos</span><span id="r_lImpostos">R$ 0,00</span></div>
         <div class="line total"><span>Preço final</span><span id="r_lTotal">R$ 0,00</span></div>
       </div>
 
